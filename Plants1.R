@@ -41,7 +41,7 @@ occ <- occ_raw %>%
   ) %>%
   filter(!is.na(country), !is.na(year))
 
-# 4) Validation checks (good for your rubric write-up)
+# 4) Validation checks
 cat("Year range:", min(occ$year), "to", max(occ$year), "\n")
 cat("Missing country:", sum(is.na(occ$country)), "\n")
 cat("Unique GBIF IDs:", n_distinct(occ$gbif_id), "\n")
@@ -53,7 +53,7 @@ top_countries <- occ %>%
 
 print(top_countries)
 
-# Save table for your Medium post
+# Save table
 write_csv(top_countries, "knotweed_top_countries.csv")
 
 # 6) Figure: Bar chart of top 10 countries
@@ -97,7 +97,12 @@ occ_month <- occ %>%
   mutate(event_date = if_else(is.na(event_date), ymd(event_date, quiet = TRUE), event_date)) %>%
   filter(!is.na(event_date)) %>%
   mutate(month = month(event_date, label = TRUE, abbr = TRUE)) %>%
-  count(month)
+  count(month) %>%
+  mutate(month = factor(month,
+                        levels = month(1:12, label = TRUE, abbr = TRUE),
+                        ordered = TRUE)) %>%
+  arrange(month)
+
 
 if (nrow(occ_month) > 0) {
   p3 <- ggplot(occ_month, aes(x = month, y = n)) +
@@ -113,4 +118,3 @@ if (nrow(occ_month) > 0) {
   print(p3)
   ggsave("fig_month_seasonality.png", p3, width = 8, height = 4.5, dpi = 150)
 }
-
